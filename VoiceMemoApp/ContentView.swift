@@ -68,6 +68,9 @@ struct MemoList: View {
 struct MemoRow: View {
     let memo: VoiceMemo
     @EnvironmentObject var audioManager: AudioManager
+    var isPlaying: Bool {
+        audioManager.currentlyPlayingID == memo.id
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -85,15 +88,15 @@ struct MemoRow: View {
                 .foregroundColor(.secondary)
             
             Button(action: {
-                if audioManager.isPlaying {
+                if isPlaying {
                     audioManager.stopPlaying()
                 } else {
                     audioManager.playMemo(memo)
                 }
             }) {
                 HStack {
-                    Image(systemName: audioManager.isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                    Text(audioManager.isPlaying ? "Playing" : "Play")
+                    Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                    Text(isPlaying ? "Playing" : "Play")
                 }
                 .foregroundColor(.blue)
             }

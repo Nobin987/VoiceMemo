@@ -5,7 +5,6 @@
 //  Created by Nobin Nepolian on 02/09/2025.
 //
 
-
 import Foundation
 import WatchConnectivity
 
@@ -20,10 +19,12 @@ class SyncManager: NSObject, ObservableObject {
         }
     }
     
+    // MARK: - Sync a single memo
     func syncMemo(_ memo: VoiceMemo) {
-        guard WCSession.default.isReachable else { return }
+        let session = WCSession.default
+        guard session.activationState == .activated else { return }
         
-        // Send memo metadata
+        // Send metadata
         let memoData: [String: Any] = [
             "id": memo.id.uuidString,
             "title": memo.title,
@@ -32,11 +33,11 @@ class SyncManager: NSObject, ObservableObject {
             "fileName": memo.fileName
         ]
         
-        WCSession.default.sendMessage(["memo": memoData], replyHandler: nil)
+        session.transferUserInfo(["memo": memoData])
         
         // Send audio file
-        if let audioData = try? Data(contentsOf: memo.fileURL) {
-            WCSession.default.sendMessageData(audioData, replyHandler: nil)
+        if FileManager.default.fileExists(atPath: memo.fileURL.path) {
+            session.transferFile(memo.fileURL, metadata: ["id": memo.id.uuidString])
         }
     }
     
@@ -46,9 +47,11 @@ class SyncManager: NSObject, ObservableObject {
         }
     }
     
+    // MARK: - Delete memo
     func deleteMemo(id: UUID) {
-        guard WCSession.default.isReachable else { return }
-        WCSession.default.sendMessage(["delete": id.uuidString], replyHandler: nil)
+        let session = WCSession.default
+        guard session.activationState == .activated else { return }
+        session.transferUserInfo(["delete": id.uuidString])
     }
 }
 
@@ -60,24 +63,27 @@ extension SyncManager: WCSessionDelegate {
     func sessionDidDeactivate(_ session: WCSession) { session.activate() }
     #endif
     
-    func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
+    // MARK: - Receiving Metadata
+    func session(_ session: WCSession, didReceiveUserInfo userInfo: [String : Any] = [:]) {
         DispatchQueue.main.async {
-            if let memoData = message["memo"] as? [String: Any] {
-                self.handleReceivedMemo(memoData)
-            } else if let deleteId = message["delete"] as? String {
+            if let memoData = userInfo["memo"] as? [String: Any] {
+                NotificationCenter.default.post(name: NSNotification.Name("ReceivedMemo"), object: memoData)
+            } else if let deleteId = userInfo["delete"] as? String {
                 NotificationCenter.default.post(name: NSNotification.Name("DeleteMemo"), object: deleteId)
             }
         }
     }
     
-    func session(_ session: WCSession, didReceiveMessageData messageData: Data) {
-        // Handle received audio file
+    // MARK: - Receiving Audio File
+    func session(_ session: WCSession, didReceive file: WCSessionFile) {
         DispatchQueue.main.async {
-            NotificationCenter.default.post(name: NSNotification.Name("ReceivedAudio"), object: messageData)
+            if let id = file.metadata?["id"] as? String,
+               let data = try? Data(contentsOf: file.fileURL) {
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("ReceivedAudio"),
+                    object: ["id": id, "data": data]
+                )
+            }
         }
-    }
-    
-    private func handleReceivedMemo(_ data: [String: Any]) {
-        NotificationCenter.default.post(name: NSNotification.Name("ReceivedMemo"), object: data)
     }
 }

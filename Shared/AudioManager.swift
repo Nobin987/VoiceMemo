@@ -13,9 +13,9 @@ import AVFoundation
 
 class AudioManager: NSObject, ObservableObject {
     @Published var isRecording = false
-    @Published var isPlaying = false
     @Published var recordingTime: TimeInterval = 0
     @Published var voiceMemos: [VoiceMemo] = []
+    @Published var currentlyPlayingID: UUID? = nil
     
     private var audioRecorder: AVAudioRecorder?
     private var audioPlayer: AVAudioPlayer?
@@ -93,10 +93,24 @@ class AudioManager: NSObject, ObservableObject {
     }
     
     func startRecording() {
-        AVAudioSession.sharedInstance().requestRecordPermission { granted in
-            DispatchQueue.main.async {
-                if granted {
-                    self.performStartRecording()
+        if #available(iOS 17.0, *) {
+            AVAudioApplication.requestRecordPermission { granted in
+                DispatchQueue.main.async {
+                    if granted {
+                        self.performStartRecording()
+                    } else {
+                        print("Recording permission denied")
+                    }
+                }
+            }
+        } else {
+            AVAudioSession.sharedInstance().requestRecordPermission { granted in
+                DispatchQueue.main.async {
+                    if granted {
+                        self.performStartRecording()
+                    } else {
+                        print("Recording permission denied")
+                    }
                 }
             }
         }
@@ -155,22 +169,31 @@ class AudioManager: NSObject, ObservableObject {
     }
     
     func playMemo(_ memo: VoiceMemo) {
-        do {
-            audioPlayer = try AVAudioPlayer(contentsOf: memo.fileURL)
-            audioPlayer?.play()
-            isPlaying = true
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + memo.duration) {
-                self.isPlaying = false
+            do {
+                #if os(iOS)
+                let session = AVAudioSession.sharedInstance()
+                try session.setCategory(.playAndRecord, options: [.defaultToSpeaker])
+                try session.setActive(true)
+                #endif
+                
+                audioPlayer = try AVAudioPlayer(contentsOf: memo.fileURL)
+                audioPlayer?.play()
+                
+                currentlyPlayingID = memo.id
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + memo.duration) {
+                    if self.currentlyPlayingID == memo.id {
+                        self.currentlyPlayingID = nil
+                    }
+                }
+            } catch {
+                print("Playback failed: \(error)")
             }
-        } catch {
-            print("Playback failed: \(error)")
         }
-    }
     
     func stopPlaying() {
         audioPlayer?.stop()
-        isPlaying = false
+        currentlyPlayingID = nil
     }
     
     func deleteMemo(_ memo: VoiceMemo) {

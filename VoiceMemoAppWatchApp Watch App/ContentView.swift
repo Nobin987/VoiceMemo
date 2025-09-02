@@ -23,7 +23,7 @@ struct ContentView: View {
             RecordButton()
         }
         .onAppear {
-            _ = SyncManager.shared // Initialize sync
+            _ = SyncManager.shared
         }
         .environmentObject(audioManager)
     }
@@ -68,7 +68,7 @@ struct MemoList: View {
     
     private func deleteMemos(offsets: IndexSet) {
         for index in offsets {
-            let memoIndex = audioManager.voiceMemos.prefix(5).firstIndex { memo in
+            _ = audioManager.voiceMemos.prefix(5).firstIndex { memo in
                 memo.id == Array(audioManager.voiceMemos.prefix(5))[index].id
             }
             if let actualIndex = audioManager.voiceMemos.firstIndex(where: { $0.id == Array(audioManager.voiceMemos.prefix(5))[index].id }) {
@@ -81,6 +81,9 @@ struct MemoList: View {
 struct MemoRow: View {
     let memo: VoiceMemo
     @EnvironmentObject var audioManager: AudioManager
+    var isPlaying: Bool {
+        audioManager.currentlyPlayingID == memo.id
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
@@ -99,16 +102,16 @@ struct MemoRow: View {
                 .foregroundColor(.secondary)
             
             Button(action: {
-                if audioManager.isPlaying {
+                if isPlaying {
                     audioManager.stopPlaying()
                 } else {
                     audioManager.playMemo(memo)
                 }
             }) {
                 HStack(spacing: 2) {
-                    Image(systemName: audioManager.isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                    Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
                         .font(.caption)
-                    Text(audioManager.isPlaying ? "Playing" : "Play")
+                    Text(isPlaying ? "Playing" : "Play")
                         .font(.caption2)
                 }
                 .foregroundColor(.blue)

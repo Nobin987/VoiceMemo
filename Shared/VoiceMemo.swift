@@ -11,7 +11,7 @@
 import Foundation
 
 struct VoiceMemo: Identifiable, Codable {
-    let id = UUID()
+    var id = UUID()
     let title: String
     let date: Date
     let duration: TimeInterval
