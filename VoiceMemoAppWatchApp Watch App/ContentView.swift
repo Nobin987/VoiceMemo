@@ -1,9 +1,11 @@
 //
 //  ContentView.swift
-//  VoiceMemoApp
+//  VoiceMemoAppWatchApp Watch App
 //
 //  Created by Nobin Nepolian on 02/09/2025.
 //
+
+// MARK: - ContentView.swift (watchOS Main View)
 
 import SwiftUI
 
@@ -11,36 +13,34 @@ struct ContentView: View {
     @StateObject private var audioManager = AudioManager()
     
     var body: some View {
-        NavigationView {
-            VStack {
-                if audioManager.voiceMemos.isEmpty {
-                    EmptyView()
-                } else {
-                    MemoList()
-                }
-                
-                RecordButton()
+        VStack {
+            if audioManager.voiceMemos.isEmpty {
+                EmptyView()
+            } else {
+                MemoList()
             }
-            .navigationTitle("Voice Memos")
-            .environmentObject(audioManager)
+            
+            RecordButton()
         }
         .onAppear {
             _ = SyncManager.shared // Initialize sync
         }
+        .environmentObject(audioManager)
     }
 }
 
 struct EmptyView: View {
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 12) {
             Image(systemName: "mic.circle")
-                .font(.system(size: 60))
+                .font(.system(size: 30))
                 .foregroundColor(.blue)
             
-            Text("No Voice Memos")
-                .font(.title2)
+            Text("No Memos")
+                .font(.headline)
             
-            Text("Tap the microphone to record")
+            Text("Tap mic to record")
+                .font(.caption)
                 .foregroundColor(.secondary)
         }
     }
@@ -50,17 +50,30 @@ struct MemoList: View {
     @EnvironmentObject var audioManager: AudioManager
     
     var body: some View {
-        List {
-            ForEach(audioManager.voiceMemos) { memo in
-                MemoRow(memo: memo)
+        VStack {
+            Text("Voice Memos")
+                .font(.headline)
+                .padding(.bottom, 4)
+            
+            List {
+                ForEach(audioManager.voiceMemos.prefix(5)) { memo in // Limit for watch
+                    MemoRow(memo: memo)
+                        .listRowInsets(EdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4))
+                }
+                .onDelete(perform: deleteMemos)
             }
-            .onDelete(perform: deleteMemos)
+            .listStyle(PlainListStyle())
         }
     }
     
     private func deleteMemos(offsets: IndexSet) {
         for index in offsets {
-            audioManager.deleteMemo(audioManager.voiceMemos[index])
+            let memoIndex = audioManager.voiceMemos.prefix(5).firstIndex { memo in
+                memo.id == Array(audioManager.voiceMemos.prefix(5))[index].id
+            }
+            if let actualIndex = audioManager.voiceMemos.firstIndex(where: { $0.id == Array(audioManager.voiceMemos.prefix(5))[index].id }) {
+                audioManager.deleteMemo(audioManager.voiceMemos[actualIndex])
+            }
         }
     }
 }
@@ -70,18 +83,19 @@ struct MemoRow: View {
     @EnvironmentObject var audioManager: AudioManager
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 2) {
             HStack {
                 Text(memo.title)
-                    .font(.headline)
+                    .font(.caption)
+                    .fontWeight(.medium)
                 Spacer()
                 Text(memo.durationString)
-                    .font(.caption)
+                    .font(.caption2)
                     .foregroundColor(.blue)
             }
             
             Text(memo.dateString)
-                .font(.caption)
+                .font(.caption2)
                 .foregroundColor(.secondary)
             
             Button(action: {
@@ -91,14 +105,16 @@ struct MemoRow: View {
                     audioManager.playMemo(memo)
                 }
             }) {
-                HStack {
+                HStack(spacing: 2) {
                     Image(systemName: audioManager.isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                        .font(.caption)
                     Text(audioManager.isPlaying ? "Playing" : "Play")
+                        .font(.caption2)
                 }
                 .foregroundColor(.blue)
             }
+            .buttonStyle(PlainButtonStyle())
         }
-        .padding(.vertical, 4)
     }
 }
 
@@ -106,12 +122,20 @@ struct RecordButton: View {
     @EnvironmentObject var audioManager: AudioManager
     
     var body: some View {
-        VStack {
+        VStack(spacing: 4) {
             if audioManager.isRecording {
-                Text("Recording: \(formatTime(audioManager.recordingTime))")
-                    .font(.headline)
-                    .foregroundColor(.red)
-                    .padding()
+                HStack(spacing: 2) {
+                    Circle()
+                        .fill(Color.red)
+                        .frame(width: 4, height: 4)
+                    Text("Recording")
+                        .font(.caption2)
+                        .foregroundColor(.red)
+                }
+                
+                Text(formatTime(audioManager.recordingTime))
+                    .font(.caption2)
+                    .fontWeight(.medium)
             }
             
             Button(action: {
@@ -124,19 +148,20 @@ struct RecordButton: View {
                 ZStack {
                     Circle()
                         .fill(audioManager.isRecording ? Color.red : Color.blue)
-                        .frame(width: 70, height: 70)
+                        .frame(width: 44, height: 44)
                     
                     if audioManager.isRecording {
-                        RoundedRectangle(cornerRadius: 4)
+                        RoundedRectangle(cornerRadius: 2)
                             .fill(Color.white)
-                            .frame(width: 20, height: 20)
+                            .frame(width: 12, height: 12)
                     } else {
                         Image(systemName: "mic.fill")
-                            .font(.title)
+                            .font(.title3)
                             .foregroundColor(.white)
                     }
                 }
             }
+            .buttonStyle(PlainButtonStyle())
         }
         .padding()
     }
@@ -151,6 +176,3 @@ struct RecordButton: View {
 #Preview {
     ContentView()
 }
-
-
-

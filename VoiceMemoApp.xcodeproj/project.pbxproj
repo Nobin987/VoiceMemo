@@ -6,14 +6,76 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		E077042F2E66CF44001985AA /* VoiceMemoAppWatchApp Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = E07704252E66CF43001985AA /* VoiceMemoAppWatchApp Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E07707572E66FDEE001985AA /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E07707562E66FDEE001985AA /* AVFoundation.framework */; };
+		E07707592E66FE04001985AA /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E07707582E66FE04001985AA /* WatchConnectivity.framework */; };
+		E077075B2E66FE1B001985AA /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E077075A2E66FE1B001985AA /* AVFoundation.framework */; };
+		E077075D2E66FE3C001985AA /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E077075C2E66FE3C001985AA /* WatchConnectivity.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		E077042D2E66CF44001985AA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E077040B2E66CEF1001985AA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E07704242E66CF43001985AA;
+			remoteInfo = "VoiceMemoAppWatchApp Watch App";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		E07704332E66CF44001985AA /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				E077042F2E66CF44001985AA /* VoiceMemoAppWatchApp Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		E07704132E66CEF1001985AA /* VoiceMemoApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VoiceMemoApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E07704252E66CF43001985AA /* VoiceMemoAppWatchApp Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "VoiceMemoAppWatchApp Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E07707562E66FDEE001985AA /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS11.5.sdk/System/Library/Frameworks/AVFoundation.framework; sourceTree = DEVELOPER_DIR; };
+		E07707582E66FE04001985AA /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS11.5.sdk/System/Library/Frameworks/WatchConnectivity.framework; sourceTree = DEVELOPER_DIR; };
+		E077075A2E66FE1B001985AA /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		E077075C2E66FE3C001985AA /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = System/Library/Frameworks/WatchConnectivity.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		E07707652E66FF87001985AA /* Exceptions for "Shared" folder in "VoiceMemoAppWatchApp Watch App" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				AudioManager.swift,
+				SyncManager.swift,
+				VoiceMemo.swift,
+			);
+			target = E07704242E66CF43001985AA /* VoiceMemoAppWatchApp Watch App */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E07704152E66CEF1001985AA /* VoiceMemoApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = VoiceMemoApp;
+			sourceTree = "<group>";
+		};
+		E07704262E66CF43001985AA /* VoiceMemoAppWatchApp Watch App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "VoiceMemoAppWatchApp Watch App";
+			sourceTree = "<group>";
+		};
+		E07704352E66D09F001985AA /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E07707652E66FF87001985AA /* Exceptions for "Shared" folder in "VoiceMemoAppWatchApp Watch App" target */,
+			);
+			path = Shared;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -23,6 +85,17 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E077075B2E66FE1B001985AA /* AVFoundation.framework in Frameworks */,
+				E077075D2E66FE3C001985AA /* WatchConnectivity.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E07704222E66CF43001985AA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E07707572E66FDEE001985AA /* AVFoundation.framework in Frameworks */,
+				E07707592E66FE04001985AA /* WatchConnectivity.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -32,7 +105,10 @@
 		E077040A2E66CEF1001985AA = {
 			isa = PBXGroup;
 			children = (
+				E07704352E66D09F001985AA /* Shared */,
 				E07704152E66CEF1001985AA /* VoiceMemoApp */,
+				E07704262E66CF43001985AA /* VoiceMemoAppWatchApp Watch App */,
+				E07707552E66FDEE001985AA /* Frameworks */,
 				E07704142E66CEF1001985AA /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,8 +117,20 @@
 			isa = PBXGroup;
 			children = (
 				E07704132E66CEF1001985AA /* VoiceMemoApp.app */,
+				E07704252E66CF43001985AA /* VoiceMemoAppWatchApp Watch App.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		E07707552E66FDEE001985AA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E077075C2E66FE3C001985AA /* WatchConnectivity.framework */,
+				E077075A2E66FE1B001985AA /* AVFoundation.framework */,
+				E07707582E66FE04001985AA /* WatchConnectivity.framework */,
+				E07707562E66FDEE001985AA /* AVFoundation.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -55,19 +143,44 @@
 				E077040F2E66CEF1001985AA /* Sources */,
 				E07704102E66CEF1001985AA /* Frameworks */,
 				E07704112E66CEF1001985AA /* Resources */,
+				E07704332E66CF44001985AA /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				E077042E2E66CF44001985AA /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				E07704152E66CEF1001985AA /* VoiceMemoApp */,
+				E07704352E66D09F001985AA /* Shared */,
 			);
 			name = VoiceMemoApp;
 			packageProductDependencies = (
 			);
 			productName = VoiceMemoApp;
 			productReference = E07704132E66CEF1001985AA /* VoiceMemoApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+		E07704242E66CF43001985AA /* VoiceMemoAppWatchApp Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E07704302E66CF44001985AA /* Build configuration list for PBXNativeTarget "VoiceMemoAppWatchApp Watch App" */;
+			buildPhases = (
+				E07704212E66CF43001985AA /* Sources */,
+				E07704222E66CF43001985AA /* Frameworks */,
+				E07704232E66CF43001985AA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				E07704262E66CF43001985AA /* VoiceMemoAppWatchApp Watch App */,
+			);
+			name = "VoiceMemoAppWatchApp Watch App";
+			packageProductDependencies = (
+			);
+			productName = "VoiceMemoAppWatchApp Watch App";
+			productReference = E07704252E66CF43001985AA /* VoiceMemoAppWatchApp Watch App.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -81,6 +194,9 @@
 				LastUpgradeCheck = 1640;
 				TargetAttributes = {
 					E07704122E66CEF1001985AA = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					E07704242E66CF43001985AA = {
 						CreatedOnToolsVersion = 16.4;
 					};
 				};
@@ -100,12 +216,20 @@
 			projectRoot = "";
 			targets = (
 				E07704122E66CEF1001985AA /* VoiceMemoApp */,
+				E07704242E66CF43001985AA /* VoiceMemoAppWatchApp Watch App */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		E07704112E66CEF1001985AA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E07704232E66CF43001985AA /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +246,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E07704212E66CF43001985AA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E077042E2E66CF44001985AA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E07704242E66CF43001985AA /* VoiceMemoAppWatchApp Watch App */;
+			targetProxy = E077042D2E66CF44001985AA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		E077041C2E66CEF2001985AA /* Debug */ = {
@@ -249,10 +388,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = VoiceMemoApp/VoiceMemoApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = VN6G8J66P9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Voice Memo";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Record voice memos";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -276,10 +419,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = VoiceMemoApp/VoiceMemoApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = VN6G8J66P9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Voice Memo";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Record voice memos";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -295,6 +442,68 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		E07704312E66CF44001985AA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "VoiceMemoAppWatchApp Watch App/VoiceMemoAppWatchApp Watch App.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = VN6G8J66P9;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = VoiceMemoAppWatchApp;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Record voice memos";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = example.com.VoiceMemoApp;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = example.com.VoiceMemoApp.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 11.5;
+			};
+			name = Debug;
+		};
+		E07704322E66CF44001985AA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "VoiceMemoAppWatchApp Watch App/VoiceMemoAppWatchApp Watch App.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = VN6G8J66P9;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = VoiceMemoAppWatchApp;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Record voice memos";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = example.com.VoiceMemoApp;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = example.com.VoiceMemoApp.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 11.5;
 			};
 			name = Release;
 		};
@@ -315,6 +524,15 @@
 			buildConfigurations = (
 				E077041F2E66CEF2001985AA /* Debug */,
 				E07704202E66CEF2001985AA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E07704302E66CF44001985AA /* Build configuration list for PBXNativeTarget "VoiceMemoAppWatchApp Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E07704312E66CF44001985AA /* Debug */,
+				E07704322E66CF44001985AA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
