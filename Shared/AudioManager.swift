@@ -16,18 +16,16 @@ class AudioManager: NSObject, ObservableObject {
     @Published var recordingTime: TimeInterval = 0
     @Published var voiceMemos: [VoiceMemo] = []
     @Published var currentlyPlayingID: UUID? = nil
+    @Published var audioLevel: Float = 0.0  // For waveform
     
     private var audioRecorder: AVAudioRecorder?
     private var audioPlayer: AVAudioPlayer?
     private var recordingTimer: Timer?
-    private var pendingAudioData: Data?
-    private var pendingMemoData: [String: Any]?
     
     override init() {
         super.init()
         setupAudio()
         loadMemos()
-        setupNotifications()
     }
     
     private func setupAudio() {
@@ -40,83 +38,25 @@ class AudioManager: NSObject, ObservableObject {
         }
     }
     
-    private func setupNotifications() {
-        NotificationCenter.default.addObserver(forName: NSNotification.Name("ReceivedMemo"), object: nil, queue: .main) { notification in
-            if let data = notification.object as? [String: Any] {
-                self.pendingMemoData = data
-                self.checkAndCreateMemo()
-            }
-        }
-        
-        NotificationCenter.default.addObserver(forName: NSNotification.Name("ReceivedAudio"), object: nil, queue: .main) { notification in
-            if let data = notification.object as? Data {
-                self.pendingAudioData = data
-                self.checkAndCreateMemo()
-            }
-        }
-        
-        NotificationCenter.default.addObserver(forName: NSNotification.Name("DeleteMemo"), object: nil, queue: .main) { notification in
-            if let idString = notification.object as? String,
-               let id = UUID(uuidString: idString) {
-                self.deleteMemo(id: id)
-            }
-        }
-    }
-    
-    private func checkAndCreateMemo() {
-        guard let memoData = pendingMemoData,
-              let audioData = pendingAudioData else { return }
-        
-        // Create memo from received data
-        if let idString = memoData["id"] as? String,
-           let id = UUID(uuidString: idString),
-           let title = memoData["title"] as? String,
-           let date = memoData["date"] as? Date,
-           let duration = memoData["duration"] as? TimeInterval,
-           let fileName = memoData["fileName"] as? String {
-            
-            let memo = VoiceMemo(title: title, date: date, duration: duration, fileName: fileName)
-            
-            // Save audio file
-            try? audioData.write(to: memo.fileURL)
-            
-            // Add to list if not exists
-            if !voiceMemos.contains(where: { $0.id == id }) {
-                voiceMemos.insert(memo, at: 0)
-                saveMemos()
-            }
-        }
-        
-        // Clear pending data
-        pendingMemoData = nil
-        pendingAudioData = nil
-    }
-    
     func startRecording() {
         if #available(iOS 17.0, *) {
             AVAudioApplication.requestRecordPermission { granted in
                 DispatchQueue.main.async {
-                    if granted {
-                        self.performStartRecording()
-                    } else {
-                        print("Recording permission denied")
-                    }
+                    if granted { self.performStartRecording() }
+                    else { print("Recording permission denied") }
                 }
             }
         } else {
             AVAudioSession.sharedInstance().requestRecordPermission { granted in
                 DispatchQueue.main.async {
-                    if granted {
-                        self.performStartRecording()
-                    } else {
-                        print("Recording permission denied")
-                    }
+                    if granted { self.performStartRecording() }
+                    else { print("Recording permission denied") }
                 }
             }
         }
     }
     
-    private func performStartRecording() {
+    func performStartRecording() {
         let fileName = "memo_\(Date().timeIntervalSince1970).m4a"
         let url = getDocumentsDirectory().appendingPathComponent(fileName)
         
@@ -129,12 +69,23 @@ class AudioManager: NSObject, ObservableObject {
         
         do {
             audioRecorder = try AVAudioRecorder(url: url, settings: settings)
+            audioRecorder?.isMeteringEnabled = true
             audioRecorder?.record()
             isRecording = true
             recordingTime = 0
             
-            recordingTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
-                self.recordingTime += 0.1
+            recordingTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
+                guard let recorder = self.audioRecorder else { return }
+                
+                self.recordingTime += 0.05
+                recorder.updateMeters()
+                
+                // Normalize audio level 0..1
+                let level = recorder.averagePower(forChannel: 0)
+                let minLevel: Float = -50
+                let maxLevel: Float = 0
+                let normalized = max(0, (level - minLevel) / (maxLevel - minLevel))
+                self.audioLevel = normalized
             }
         } catch {
             print("Recording failed: \(error)")
@@ -146,82 +97,70 @@ class AudioManager: NSObject, ObservableObject {
         
         audioRecorder?.stop()
         recordingTimer?.invalidate()
+        recordingTimer = nil
         
         let duration = recordingTime
         let fileName = audioRecorder?.url.lastPathComponent ?? ""
         
         isRecording = false
         recordingTime = 0
+        audioLevel = 0.0
         
         // Create new memo
-        let memo = VoiceMemo(
-            title: "Memo \(voiceMemos.count + 1)",
-            date: Date(),
-            duration: duration,
-            fileName: fileName
-        )
-        
+        let memo = VoiceMemo(title: "Memo \(voiceMemos.count + 1)",
+                             date: Date(),
+                             duration: duration,
+                             fileName: fileName)
         voiceMemos.insert(memo, at: 0)
         saveMemos()
-        
-        // Sync to other device
-        SyncManager.shared.syncMemo(memo)
     }
     
     func playMemo(_ memo: VoiceMemo) {
-            do {
-                #if os(iOS)
-                let session = AVAudioSession.sharedInstance()
-                try session.setCategory(.playAndRecord, options: [.defaultToSpeaker])
-                try session.setActive(true)
-                #endif
-                
-                audioPlayer = try AVAudioPlayer(contentsOf: memo.fileURL)
-                audioPlayer?.play()
-                
-                currentlyPlayingID = memo.id
-
-                DispatchQueue.main.asyncAfter(deadline: .now() + memo.duration) {
-                    if self.currentlyPlayingID == memo.id {
-                        self.currentlyPlayingID = nil
-                    }
+        do {
+            let session = AVAudioSession.sharedInstance()
+            
+            #if os(iOS)
+            // On iOS, play through speaker
+            try session.setCategory(.playAndRecord, options: [.defaultToSpeaker])
+            #elseif os(watchOS)
+            // On watchOS, default options only
+            try session.setCategory(.playAndRecord)
+            #endif
+            
+            try session.setActive(true)
+            
+            audioPlayer = try AVAudioPlayer(contentsOf: memo.fileURL)
+            audioPlayer?.play()
+            currentlyPlayingID = memo.id
+            
+            // Reset playing state after the memo duration
+            DispatchQueue.main.asyncAfter(deadline: .now() + memo.duration) {
+                if self.currentlyPlayingID == memo.id {
+                    self.currentlyPlayingID = nil
                 }
-            } catch {
-                print("Playback failed: \(error)")
             }
+        } catch {
+            print("Playback failed: \(error)")
         }
+    }
+
     
     func stopPlaying() {
         audioPlayer?.stop()
         currentlyPlayingID = nil
     }
     
-    func deleteMemo(_ memo: VoiceMemo) {
-        voiceMemos.removeAll { $0.id == memo.id }
-        try? FileManager.default.removeItem(at: memo.fileURL)
-        saveMemos()
-        SyncManager.shared.deleteMemo(id: memo.id)
-    }
-    
-    private func deleteMemo(id: UUID) {
-        if let memo = voiceMemos.first(where: { $0.id == id }) {
-            voiceMemos.removeAll { $0.id == id }
-            try? FileManager.default.removeItem(at: memo.fileURL)
-            saveMemos()
-        }
-    }
-    
     private func getDocumentsDirectory() -> URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
     
-    private func saveMemos() {
+    func saveMemos() {
         if let data = try? JSONEncoder().encode(voiceMemos) {
             UserDefaults.standard.set(data, forKey: "memos")
         }
     }
     
-    private func loadMemos() {
+    func loadMemos() {
         if let data = UserDefaults.standard.data(forKey: "memos"),
            let memos = try? JSONDecoder().decode([VoiceMemo].self, from: data) {
             voiceMemos = memos.filter { FileManager.default.fileExists(atPath: $0.fileURL.path) }

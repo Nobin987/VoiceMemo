@@ -60,20 +60,16 @@ struct MemoList: View {
                     MemoRow(memo: memo)
                         .listRowInsets(EdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4))
                 }
-                .onDelete(perform: deleteMemos)
+                .onDelete { offsets in
+                    offsets.forEach { index in
+                        let memo = audioManager.voiceMemos[index]
+                        audioManager.voiceMemos.remove(at: index)
+                        try? FileManager.default.removeItem(at: memo.fileURL)
+                        audioManager.saveMemos()
+                    }
+                }
             }
             .listStyle(PlainListStyle())
-        }
-    }
-    
-    private func deleteMemos(offsets: IndexSet) {
-        for index in offsets {
-            _ = audioManager.voiceMemos.prefix(5).firstIndex { memo in
-                memo.id == Array(audioManager.voiceMemos.prefix(5))[index].id
-            }
-            if let actualIndex = audioManager.voiceMemos.firstIndex(where: { $0.id == Array(audioManager.voiceMemos.prefix(5))[index].id }) {
-                audioManager.deleteMemo(audioManager.voiceMemos[actualIndex])
-            }
         }
     }
 }
@@ -125,20 +121,14 @@ struct RecordButton: View {
     @EnvironmentObject var audioManager: AudioManager
     
     var body: some View {
-        VStack(spacing: 4) {
+        VStack {
             if audioManager.isRecording {
-                HStack(spacing: 2) {
-                    Circle()
-                        .fill(Color.red)
-                        .frame(width: 4, height: 4)
-                    Text("Recording")
-                        .font(.caption2)
-                        .foregroundColor(.red)
-                }
+                WaveformView(level: $audioManager.audioLevel)
                 
-                Text(formatTime(audioManager.recordingTime))
-                    .font(.caption2)
-                    .fontWeight(.medium)
+                Text("Recording: \(formatTime(audioManager.recordingTime))")
+                    .font(.headline)
+                    .foregroundColor(.red)
+                    .padding()
             }
             
             Button(action: {
@@ -151,20 +141,19 @@ struct RecordButton: View {
                 ZStack {
                     Circle()
                         .fill(audioManager.isRecording ? Color.red : Color.blue)
-                        .frame(width: 44, height: 44)
+                        .frame(width: 70, height: 70)
                     
                     if audioManager.isRecording {
-                        RoundedRectangle(cornerRadius: 2)
+                        RoundedRectangle(cornerRadius: 4)
                             .fill(Color.white)
-                            .frame(width: 12, height: 12)
+                            .frame(width: 20, height: 20)
                     } else {
                         Image(systemName: "mic.fill")
-                            .font(.title3)
+                            .font(.title)
                             .foregroundColor(.white)
                     }
                 }
             }
-            .buttonStyle(PlainButtonStyle())
         }
         .padding()
     }
@@ -175,6 +164,30 @@ struct RecordButton: View {
         return String(format: "%d:%02d", mins, secs)
     }
 }
+
+struct WaveformView: View {
+    @Binding var level: Float
+    let barCount = 20
+    
+    var body: some View {
+        HStack(alignment: .bottom, spacing: 3) {
+            ForEach(0..<barCount, id: \.self) { index in
+                Capsule()
+                    .fill(Color.blue)
+                    .frame(width: 3, height: barHeight(for: index))
+                    .animation(.easeOut(duration: 0.05), value: level)
+            }
+        }
+        .frame(height: 50)
+        .padding(.horizontal)
+    }
+    
+    private func barHeight(for index: Int) -> CGFloat {
+        let factor = CGFloat.random(in: 0.3...1.0)
+        return max(2, CGFloat(level) * 50 * factor)
+    }
+}
+
 
 #Preview {
     ContentView()

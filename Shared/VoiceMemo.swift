@@ -11,21 +11,15 @@
 import Foundation
 
 struct VoiceMemo: Identifiable, Codable {
-    var id = UUID()
+    let id = UUID()
     let title: String
     let date: Date
     let duration: TimeInterval
     let fileName: String
     
     var fileURL: URL {
-        getDocumentsDirectory().appendingPathComponent(fileName)
-    }
-    
-    var dateString: String {
-        let formatter = DateFormatter()
-        formatter.timeStyle = .short
-        formatter.dateStyle = .short
-        return formatter.string(from: date)
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent(fileName)
     }
     
     var durationString: String {
@@ -34,7 +28,10 @@ struct VoiceMemo: Identifiable, Codable {
         return String(format: "%d:%02d", mins, secs)
     }
     
-    private func getDocumentsDirectory() -> URL {
-        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    var dateString: String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
     }
 }
